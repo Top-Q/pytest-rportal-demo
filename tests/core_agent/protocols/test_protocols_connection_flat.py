@@ -2,7 +2,7 @@ from __future__ import annotations
 import pytest
 import logging
 
-log = logging.getLogger('api.endpoint')
+log = logging.getLogger('tests')
 
 class ApiMember:
 
@@ -94,8 +94,8 @@ def agent() -> Agent:
     return Agent()
 
 
-@pytest.mark.component("agent")
-@pytest.mark.os("windows")
+@pytest.mark.component("web")
+@pytest.mark.os("linux")
 def test_admin_connects_via(admin, network, agent):
     """
     Given agent is authenticated
@@ -116,7 +116,7 @@ def test_admin_connects_via(admin, network, agent):
     assert agent.resolve_host('perimeter81.com').has_succeeded
 
 
-@pytest.mark.component("agent")
+@pytest.mark.component("web")
 @pytest.mark.os("windows")
 def test_admin_failed_to_connect_via(admin, network, agent):
     """

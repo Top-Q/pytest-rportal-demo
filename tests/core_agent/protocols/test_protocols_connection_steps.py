@@ -2,7 +2,7 @@ from __future__ import annotations
 import pytest
 import logging
 
-log = logging.getLogger('api.endpoint')
+log = logging.getLogger('tests')
 
 class ApiMember:
 
@@ -95,7 +95,7 @@ def agent() -> Agent:
 
 
 @pytest.mark.component("agent")
-@pytest.mark.os("windows")
+@pytest.mark.os("linux")
 def test_admin_connects_via(step, admin, network, agent):
     """
     Given agent is authenticated
