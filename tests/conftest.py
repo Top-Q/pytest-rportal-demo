@@ -2,14 +2,15 @@ from time import time
 import logging
 import sys
 
-
 import pytest
 
 from pytest_reportportal import RPLogger, RPLogHandler
 
+
 def timestamp():
     """Time for difference between start and finish tests."""
     return str(int(time() * 1000))
+
 
 @pytest.fixture(scope="session")
 def rp_logger(request):
@@ -30,6 +31,7 @@ def rp_logger(request):
     # Set INFO level for Report Portal handler.
     rp_handler.setLevel(logging.INFO)
     return logger
+
 
 @pytest.fixture
 def step(pytestconfig):
