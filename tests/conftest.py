@@ -3,8 +3,22 @@ import logging
 import sys
 
 import pytest
+from _pytest.main import Session
+from _pytest.reports import TestReport
 
-from pytest_reportportal import RPLogger, RPLogHandler
+# from pytest_reportportal import RPLogger, RPLogHandler
+
+from infra.report.report_manager import ReportManager
+
+from reportportal_client import RPLogger
+
+
+@pytest.fixture(scope="session")
+def rp_logger():
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    logging.setLoggerClass(RPLogger)
+    return logger
 
 
 def timestamp():
@@ -12,25 +26,6 @@ def timestamp():
     return str(int(time() * 1000))
 
 
-@pytest.fixture(scope="session")
-def rp_logger(request):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    # Create handler for Report Portal if the service has been
-    # configured and started.
-    if hasattr(request.node.config, 'py_test_service'):
-        # Import Report Portal logger and handler to the test module.
-        logging.setLoggerClass(RPLogger)
-        rp_handler = RPLogHandler(request.node.config.py_test_service)
-        # Add additional handlers if it is necessary
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        logger.addHandler(console_handler)
-    else:
-        rp_handler = logging.StreamHandler(sys.stdout)
-    # Set INFO level for Report Portal handler.
-    rp_handler.setLevel(logging.INFO)
-    return logger
 
 
 @pytest.fixture
@@ -75,3 +70,50 @@ def step(pytestconfig):
             rp_service.terminate()
 
     yield Step
+
+@pytest.hookimpl
+def pytest_runtest_logstart(nodeid: str, location) -> None:
+    """
+    Creates end test event for the report manager
+    :param nodeid:
+    :param location:
+    :return:
+    """
+    report = ReportManager()
+    report.start_test(nodeid, location)
+
+
+@pytest.hookimpl
+def pytest_runtest_logfinish(nodeid: str, location) -> None:
+    """
+    Creates start test event for the report manager
+
+    :param nodeid:
+    :param location:
+    :return:
+    """
+    report = ReportManager()
+    report.end_test(nodeid, location)
+
+
+@pytest.hookimpl
+def pytest_runtest_logreport(report: TestReport):
+    message = None
+    if report.longrepr:
+        message = report.longrepr.reprcrash.message
+    ReportManager().test_status(report.nodeid, report.when, report.outcome,report.longreprtext, message)
+
+
+@pytest.hookimpl
+def pytest_sessionfinish(session: Session, exitstatus):
+    ReportManager().end_run()
+
+
+@pytest.fixture(scope="session")
+def report():
+    """
+    Configures the report portal reporter and add it to the report manager
+    :param request:
+    :return: report manager
+    """
+    return ReportManager()
