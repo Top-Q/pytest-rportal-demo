@@ -79,6 +79,10 @@ class ReportManager(object):
             for reporter in self.reporters:
                 invoke_if_exists(reporter, "debug", message)
 
+        def trace(self, message):
+            for reporter in self.reporters:
+                invoke_if_exists(reporter, "trace", message)
+
         def warning(self, message):
             for reporter in self.reporters:
                 invoke_if_exists(reporter, "warning", message)
