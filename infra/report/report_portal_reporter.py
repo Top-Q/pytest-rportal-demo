@@ -4,7 +4,7 @@ import logging
 class ReportPortalReporter(object):
     def __init__(self):
         self.logger = logging.getLogger("reporter.rportal")
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.DEBUG - 5)
 
     def warning(self, message):
         self.logger.warning(message)
@@ -14,6 +14,9 @@ class ReportPortalReporter(object):
 
     def debug(self, message):
         self.logger.debug(message)
+
+    def trace(self, message):
+        self.logger.trace(message)
 
     def error(self, message):
         self.logger.error(message)
